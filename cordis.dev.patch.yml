@@ -1,0 +1,4 @@
+# Dev overlay: pnpm dsh web --patch C:/Users/Admin/.zcode/workspace/default/dsh-compaction-guard/cordis.dev.patch.yml
+- insert:
+    - id: dsh-compaction-guard
+      name: 'C:/Users/Admin/.zcode/workspace/default/dsh-compaction-guard/src/index.ts'
