@@ -61,6 +61,12 @@ Prebuilt `lib/` ships in the repo — no build step, no `allowBuilds`.
     ledgerPath: .dsh-compaction-guard/ledger.jsonl
 ```
 
+## Compatibility
+
+- **DSH**: verified against the 0.2.x line (source snapshot 0.2.1-alpha.2); installs on any profile via `dsh plugin add` (prebuilt `lib/`, no build approval).
+- **Node**: >= 20 (CI matrix: Node 20/22/24 on Ubuntu and Windows).
+- **Disposable-profile evidence (2026-10-19)**: `dsh plugin --profile <fresh> add github:zhengqiuyang/dsh-compaction-guard` → installed in 30s; boot shows `[dsh-compaction-guard] active: …`; `dsh plugin --profile <fresh> remove dsh-compaction-guard` → dependencies cleared, bundles restored.
+
 ## Develop
 
 ```sh
