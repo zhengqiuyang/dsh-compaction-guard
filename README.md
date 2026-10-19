@@ -1,5 +1,6 @@
 # dsh-compaction-guard
 
+> **If this helps you, please give it a star** — it helps others find it. Thanks!
 Compaction integrity for [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) (dsh).
 
 Long sessions compact; the compacted range takes constraints with it — "never
