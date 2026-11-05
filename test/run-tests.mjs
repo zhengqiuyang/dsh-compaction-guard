@@ -103,6 +103,34 @@ await test('defensive extraction from unknown payload shapes', () => {
   assert.equal(collectText('short').length, 0);
 });
 
-console.log('');
-console.log(`${passed} passed, ${failed} failed`);
+console.log('T02 polarity regression');
+
+await test('unrelated never cannot vouch; polarity flips are lost; stateless regex', () => {
+  const mk = (text) => [{ text, seq: 1 }];
+
+  const c03 = verifySurvival(mk('Never commit directly to main branch.'), 'Commit directly to main branch. Never reveal secrets.');
+  assert.equal(c03[0].kept, false, 'C03 must not survive via unrelated never');
+  assert.equal(c03[0].how, 'lost-polarity');
+
+  const c04 = verifySurvival(mk('You must not publish customer secrets to public storage.'), 'You must publish customer secrets to public storage.');
+  assert.equal(c04[0].kept, false, 'C04 must-not losing not is a flip');
+
+  const c05 = verifySurvival(mk('You must run the full test suite before every release.'), 'Never run the full test suite before every release.');
+  assert.equal(c05[0].kept, false, 'C05 affirmative-to-negative flip');
+
+  const okNeg = verifySurvival(mk('Never commit directly to main branch.'), 'The policy is: never commit directly to the main branch.');
+  assert.equal(okNeg[0].kept, true, 'polarity-consistent paraphrase survives');
+
+  const two = verifySurvival(
+    [{ text: 'Never commit directly to main branch.', seq: 1 }, { text: 'Always run the full test suite.', seq: 2 }],
+    'Never commit directly to main branch. All tests were executed in the CI pipeline.'
+  );
+  assert.equal(two[0].kept, true, 'first keeps (verbatim)');
+  assert.equal(two[1].kept, false, 'second lost (no test-suite mention)');
+
+  const four = [1, 2, 3, 4].map(() => isConstraintLine('Never secrets.'));
+  assert.deepEqual(four, [true, true, true, true]);
+});
+
+console.log();
 process.exit(failed === 0 ? 0 : 1);
