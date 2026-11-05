@@ -88,3 +88,9 @@ npm install && npm test
 
 If dsh ships first-party compaction-integrity verification, this freezes at
 its last working version with a postmortem here.
+
+## Known limitations
+
+- **Word coverage tracks words, not meaning.** A paraphrase with no shared vocabulary counts as lost (conservative: false alarm, not silent loss). As of this release, a negative directive ("never…") whose summary **drops the negation** is explicitly judged `lost-negation` instead of silently surviving coverage.
+- **This guard reports and ledgers — it does not re-inject lost constraints or block compaction.** Restating the rule to the agent is your call; the report exists so you know you should.
+- **Directive extraction is marker-based** (must/never/必须/…). Directives phrased without any marker are not collected.
