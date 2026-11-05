@@ -11,8 +11,13 @@
 const CONSTRAINT_MARKER_RE =
   /\b(?:must|always|never|do\s+not|don'?t|shall\s+not|required\s+to)\b|(?:必须|务必|不要|不能|禁止|千万)/i;
 
-const WORD_RE = /[A-Za-z][A-Za-z'-]{3,}/g;
+const WORD_RE = /[A-Za-z][A-Za-z'-]{3,}/g;   // matchAll needs /g
+const HAS_WORD_RE = /[A-Za-z][A-Za-z'-]{3,}/; // .test() must stay stateless (a /g regex advances lastIndex across calls)
 const CJK_RE = /[\u4e00-\u9fff]/;
+
+/** Negation flips a directive's meaning — a summary that drops it has NOT
+ *  preserved the constraint, no matter how high the word coverage scores. */
+const NEGATION_RE = /\b(?:never|do\s+not|don'?t|shall\s+not)\b|(?:不要|不能|禁止|千万)/i;
 
 export interface Constraint {
   /** Raw directive line, as the user wrote it. */
@@ -29,7 +34,7 @@ export function isConstraintLine(line: string): boolean {
   if (!CONSTRAINT_MARKER_RE.test(trimmed)) return false;
   // Must carry actual content: an English word beyond the marker or CJK.
   const withoutMarker = trimmed.replace(CONSTRAINT_MARKER_RE, '');
-  return WORD_RE.test(withoutMarker) || CJK_RE.test(withoutMarker);
+  return HAS_WORD_RE.test(withoutMarker) || CJK_RE.test(withoutMarker);
 }
 
 export function extractConstraints(lines: readonly { text: string; seq: number }[]): Constraint[] {
@@ -45,8 +50,10 @@ function contentWords(text: string): Set<string> {
   const words = new Set<string>();
   for (const m of text.toLowerCase().matchAll(WORD_RE)) {
     const w = m[0] ?? '';
-    // Drop the bare markers themselves — they are structure, not content.
-    if (!['must', 'always', 'never', 'shall', 'required', 'dont', 'note', 'that', 'this', 'with'].includes(w)) {
+    // Keep negations — 'never' carries semantics: a summary that drops it
+    // must NOT count as surviving the constraint. Only drop pure structure
+    // words (note/that/this/with) and affirmative modals (must/always/shall).
+    if (!['must', 'always', 'shall', 'required', 'note', 'that', 'this', 'with'].includes(w)) {
       words.add(w);
     }
   }
@@ -71,6 +78,11 @@ export function verifySurvival(
   const normSummary = normalizeWs(summaryText);
   const summaryWords = contentWords(summaryText);
   return constraints.map((constraint) => {
+    // Semantic flip guard: a negative directive whose summary lost the
+    // negation is lost — coverage alone would score the flipped sentence high.
+    if (NEGATION_RE.test(constraint.text) && !NEGATION_RE.test(summaryText)) {
+      return { constraint, kept: false, how: 'lost-negation' };
+    }
     const norm = normalizeWs(constraint.text);
     if (norm.length > 0 && normSummary.includes(norm)) {
       return { constraint, kept: true, how: 'verbatim' };
