@@ -33,16 +33,27 @@ compaction/summary event
   ├── pinned constraints from config (always verified)
   ├── verify against the summary text:
   │     verbatim (whitespace-normalized substring)  → kept
-  │     content-word coverage ≥ threshold (default 0.6) → kept
-  │     otherwise                                     → LOST (reported + ledgered)
+  │     best-matching summary sentence:
+  │       content-word coverage ≥ 0.6 AND same polarity → kept
+  │       polarity flip (negation dropped/added)        → LOST-polarity
+  │       otherwise                                     → LOST (reported + ledgered)
   └── ledger: .dsh-compaction-guard/ledger.jsonl (CI-consumable)
 ```
 
-Honest limitation, on purpose: word coverage tracks **words, not meaning** —
-a summary that rewords "run the tests" as "execute the checks" with no
-shared vocabulary counts as lost (conservative direction: false alarm, not
-silent loss). Synonym-aware matching would need embeddings or an LLM, which
-is exactly what this family refuses to put in the trust path.
+Honest limitations, on purpose:
+
+- Word coverage tracks **words, not meaning** — a paraphrase with no shared
+  vocabulary counts as lost (conservative direction: false alarm, not silent
+  loss). Synonym-aware matching would need embeddings or an LLM, which this
+  family refuses to put in the trust path.
+- Coverage is judged against the **single best-matching summary sentence**,
+  never pooled across the whole summary — an unrelated sentence's 'never'
+  cannot vouch for a directive it never carried (external review C03).
+- **Polarity is bound per candidate**: a negative directive whose best
+  sentence dropped the negation — or a positive directive flipped negative —
+  is judged lost-polarity, not kept.
+- This guard reports and ledgers; it does not re-inject lost constraints or
+  block compaction.
 
 ## Install
 
