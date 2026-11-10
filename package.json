@@ -47,6 +47,9 @@
   "engines": {
     "node": ">=20"
   },
+  "homepage": "https://github.com/zhengqiuyang/dsh-compaction-guard#readme",
+  "bugs": { "url": "https://github.com/zhengqiuyang/dsh-compaction-guard/issues" },
+  "author": "zhengqiuyang",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/zhengqiuyang/dsh-compaction-guard.git"

@@ -1,5 +1,11 @@
 # dsh-compaction-guard
 
+[![CI](https://github.com/zhengqiuyang/dsh-compaction-guard/actions/workflows/ci.yml/badge.svg)](https://github.com/zhengqiuyang/dsh-compaction-guard/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/dsh-compaction-guard)](https://www.npmjs.com/package/dsh-compaction-guard)
+[![license](https://img.shields.io/npm/l/dsh-compaction-guard)](https://github.com/zhengqiuyang/dsh-compaction-guard/blob/main/LICENSE)
+
+> Part of the [DSH trust layer](https://github.com/zhengqiuyang/dsh-trust-panel/blob/main/SUITE.md) — ten deterministic checks, no LLM in the trust path.
+
 > **If this helps you, please give it a star** — it helps others find it. Thanks!
 
 Compaction integrity for [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) (dsh).
